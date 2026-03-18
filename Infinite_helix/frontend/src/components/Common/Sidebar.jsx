@@ -9,6 +9,7 @@ import {
   HiOutlineCalendar,
   HiOutlineSparkles,
   HiOutlineCog,
+  HiOutlineLogout,
 } from 'react-icons/hi';
 
 const NAV_ITEMS = [
@@ -22,7 +23,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar() {
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { todayMetrics, trackerStatus } = useWellness();
 
   const isActive = (path) => location.pathname === path || (path === '/dashboard' && location.pathname === '/');
@@ -74,9 +75,13 @@ export default function Sidebar() {
         </div>
 
         <div className="flex items-center gap-3 px-2">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-helix-pink to-helix-accent flex items-center justify-center text-xs font-bold text-white">
-            {user?.initials || 'U'}
-          </div>
+          {user?.photoURL ? (
+            <img src={user.photoURL} alt="" className="w-8 h-8 rounded-full object-cover" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-helix-pink to-helix-accent flex items-center justify-center text-xs font-bold text-white">
+              {user?.initials || 'U'}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <p className="text-sm text-helix-text truncate">{user?.displayName || 'User'}</p>
             <div className="flex items-center gap-1.5">
@@ -84,6 +89,13 @@ export default function Sidebar() {
               <span className="text-xs text-helix-muted">{trackerStatus === 'connected' ? 'Tracking' : 'Offline'}</span>
             </div>
           </div>
+          <button
+            onClick={signOut}
+            title="Sign Out"
+            className="p-1.5 rounded-lg text-helix-muted hover:text-helix-red hover:bg-helix-red/10 transition-all"
+          >
+            <HiOutlineLogout className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </aside>

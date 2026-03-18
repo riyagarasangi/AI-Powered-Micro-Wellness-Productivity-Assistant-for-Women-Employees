@@ -14,6 +14,8 @@ def create_entry():
         return jsonify({'error': 'Text is required'}), 400
 
     emotion_data = {}
+    sentiment_data = {}
+
     detector = current_app.emotion_detector
     analyzer = current_app.sentiment_analyzer
 
@@ -23,6 +25,7 @@ def create_entry():
         sentiment_data = analyzer.analyze(text)
         emotion_data['sentiment'] = sentiment_data.get('sentiment', 'neutral')
         emotion_data['reframe'] = sentiment_data.get('reframe')
+        emotion_data['all_sentiments'] = sentiment_data.get('all_sentiments', [])
 
     entry = save_journal_entry(user_id, {
         'text': text,

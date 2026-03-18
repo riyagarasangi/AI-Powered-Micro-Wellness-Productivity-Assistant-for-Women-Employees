@@ -10,6 +10,8 @@ class Config:
     FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     SECRET_KEY = os.getenv('SECRET_KEY', 'helix-dev-secret-key-change-in-production')
 
+    DEMO_MODE = os.getenv('DEMO_MODE', 'true').lower() == 'true'
+
     FIREBASE_CREDENTIALS_PATH = os.getenv('FIREBASE_CREDENTIALS_PATH', './config/firebase-credentials.json')
 
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
@@ -24,3 +26,5 @@ class Config:
     NUDGE_COOLDOWN_MINUTES = int(os.getenv('NUDGE_COOLDOWN_MINUTES', 30))
     IDLE_THRESHOLD_SECONDS = int(os.getenv('IDLE_THRESHOLD_SECONDS', 60))
     FATIGUE_THRESHOLD_MINUTES = int(os.getenv('FATIGUE_THRESHOLD_MINUTES', 120))
+
+    DESKTOP_NOTIFICATIONS = os.getenv('DESKTOP_NOTIFICATIONS', 'true').lower() == 'true'

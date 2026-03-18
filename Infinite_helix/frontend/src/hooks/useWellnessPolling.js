@@ -7,9 +7,7 @@ export default function useWellnessPolling(intervalMs = 30000) {
 
   const startPolling = useCallback(() => {
     if (timerRef.current) return;
-    timerRef.current = setInterval(() => {
-      refreshMetrics();
-    }, intervalMs);
+    timerRef.current = setInterval(refreshMetrics, intervalMs);
   }, [intervalMs, refreshMetrics]);
 
   const stopPolling = useCallback(() => {

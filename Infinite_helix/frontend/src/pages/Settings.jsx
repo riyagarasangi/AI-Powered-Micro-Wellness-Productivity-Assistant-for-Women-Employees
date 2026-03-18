@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { HiOutlineUser, HiOutlineBell, HiOutlineShieldCheck, HiOutlineColorSwatch } from 'react-icons/hi';
+import { HiOutlineUser, HiOutlineBell, HiOutlineShieldCheck, HiOutlineColorSwatch, HiOutlineLogout } from 'react-icons/hi';
 
 function ToggleSwitch({ enabled, onChange }) {
   return (
@@ -40,7 +40,7 @@ function SettingRow({ label, description, children }) {
 }
 
 export default function Settings() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [settings, setSettings] = useState({
     notifications: true,
     desktopNotifs: true,
@@ -63,14 +63,31 @@ export default function Settings() {
 
       <SettingsSection icon={HiOutlineUser} title="Profile">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-helix-pink to-helix-accent flex items-center justify-center text-xl font-bold text-white">
-            {user?.initials}
-          </div>
-          <div>
+          {user?.photoURL ? (
+            <img src={user.photoURL} alt="" className="w-14 h-14 rounded-full object-cover" />
+          ) : (
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-helix-pink to-helix-accent flex items-center justify-center text-xl font-bold text-white">
+              {user?.initials}
+            </div>
+          )}
+          <div className="flex-1">
             <p className="text-sm font-medium text-helix-text">{user?.displayName}</p>
             <p className="text-xs text-helix-muted">{user?.email}</p>
+            {user?.provider && (
+              <p className="text-xs text-helix-muted mt-0.5 capitalize">
+                Signed in via {user.provider === 'google.com' ? 'Google' : user.provider}
+              </p>
+            )}
           </div>
         </div>
+        <button
+          onClick={signOut}
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-helix-red/10 text-helix-red text-sm font-medium
+                     hover:bg-helix-red/20 transition-all mt-2 w-full justify-center"
+        >
+          <HiOutlineLogout className="w-4 h-4" />
+          Sign Out
+        </button>
       </SettingsSection>
 
       <SettingsSection icon={HiOutlineBell} title="Notifications">
@@ -100,10 +117,10 @@ export default function Settings() {
         <SettingRow label="Daily Hydration Goal" description="Number of glasses per day">
           <div className="flex items-center gap-2">
             <button onClick={() => update('hydrationGoal', Math.max(4, settings.hydrationGoal - 1))}
-                    className="w-7 h-7 rounded-lg bg-helix-bg text-helix-muted hover:text-helix-text transition-colors">−</button>
+                    className="w-7 h-7 rounded-lg bg-helix-bg text-helix-muted hover:text-helix-text transition-colors flex items-center justify-center">−</button>
             <span className="text-sm font-medium text-helix-text w-6 text-center">{settings.hydrationGoal}</span>
             <button onClick={() => update('hydrationGoal', Math.min(16, settings.hydrationGoal + 1))}
-                    className="w-7 h-7 rounded-lg bg-helix-bg text-helix-muted hover:text-helix-text transition-colors">+</button>
+                    className="w-7 h-7 rounded-lg bg-helix-bg text-helix-muted hover:text-helix-text transition-colors flex items-center justify-center">+</button>
           </div>
         </SettingRow>
         <SettingRow label="Cycle Energy Mode" description="Adjust suggestions based on menstrual cycle phase">

@@ -1,23 +1,115 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  signOut as firebaseSignOut,
+  onAuthStateChanged,
+  updateProfile,
+} from 'firebase/auth';
+import { auth, googleProvider } from '../services/firebase';
+import { authAPI } from '../services/api';
 
 const AuthContext = createContext(null);
 
-const DEMO_USER = {
-  uid: 'demo-user-001',
-  displayName: 'Ananya Sharma',
-  email: 'ananya.sharma@company.com',
-  photoURL: null,
-  initials: 'AS',
-};
+function getInitials(name) {
+  if (!name) return 'U';
+  return name
+    .split(' ')
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
+function mapFirebaseUser(fbUser) {
+  if (!fbUser) return null;
+  return {
+    uid: fbUser.uid,
+    displayName: fbUser.displayName || fbUser.email?.split('@')[0] || 'User',
+    email: fbUser.email,
+    photoURL: fbUser.photoURL || null,
+    initials: getInitials(fbUser.displayName || fbUser.email?.split('@')[0]),
+    emailVerified: fbUser.emailVerified,
+    provider: fbUser.providerData?.[0]?.providerId || 'password',
+  };
+}
 
 export function AuthProvider({ children }) {
-  const [user] = useState(DEMO_USER);
-  const [loading] = useState(false);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const value = { user, loading, signIn: () => {}, signOut: () => {} };
+  useEffect(() => {
+    if (!auth) {
+      setLoading(false);
+      return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        setUser(mapFirebaseUser(fbUser));
+        try {
+          const token = await fbUser.getIdToken();
+          await authAPI.syncProfile(token);
+        } catch {
+          // backend sync is best-effort
+        }
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const signIn = useCallback(async (email, password) => {
+    if (!auth) throw new Error('Firebase not configured');
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    return mapFirebaseUser(cred.user);
+  }, []);
+
+  const signUp = useCallback(async (email, password, displayName) => {
+    if (!auth) throw new Error('Firebase not configured');
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    if (displayName) {
+      await updateProfile(cred.user, { displayName });
+    }
+    setUser(mapFirebaseUser({ ...cred.user, displayName }));
+    try {
+      const token = await cred.user.getIdToken();
+      await authAPI.register(token, { displayName, email });
+    } catch {
+      // backend registration is best-effort
+    }
+    return mapFirebaseUser(cred.user);
+  }, []);
+
+  const signInWithGoogleHandler = useCallback(async () => {
+    if (!auth || !googleProvider) throw new Error('Firebase/Google not configured');
+    const result = await signInWithPopup(auth, googleProvider);
+    return mapFirebaseUser(result.user);
+  }, []);
+
+  const handleSignOut = useCallback(async () => {
+    if (auth) await firebaseSignOut(auth);
+    setUser(null);
+  }, []);
+
+  const value = {
+    user,
+    loading,
+    signIn,
+    signUp,
+    signInWithGoogle: signInWithGoogleHandler,
+    signOut: handleSignOut,
+  };
+
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  return useContext(AuthContext);
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 }

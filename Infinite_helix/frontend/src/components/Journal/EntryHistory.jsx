@@ -17,31 +17,61 @@ const DEMO_ENTRIES = [
     emotion: 'joy', confidence: 0.88, sentiment: 'positive',
     timestamp: '9:45 AM', date: 'Today',
   },
-  {
-    id: 4, text: "Feeling a bit overwhelmed with the sprint goals.",
-    emotion: 'sadness', confidence: 0.65, sentiment: 'negative',
-    timestamp: '4:20 PM', date: 'Yesterday',
-  },
-  {
-    id: 5, text: "Completed a challenging feature. Really proud of the solution.",
-    emotion: 'joy', confidence: 0.94, sentiment: 'positive',
-    timestamp: '2:00 PM', date: 'Yesterday',
-  },
 ];
 
-export default function EntryHistory({ entries = DEMO_ENTRIES }) {
+function formatTimestamp(ts) {
+  if (!ts) return '';
+  if (ts.includes('AM') || ts.includes('PM') || ts.includes(':')) return ts;
+  try {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return ts;
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return ts;
+  }
+}
+
+function formatDate(ts) {
+  if (!ts) return 'Today';
+  if (['Today', 'Yesterday'].includes(ts)) return ts;
+  try {
+    const d = new Date(ts);
+    if (isNaN(d.getTime())) return ts;
+    const today = new Date();
+    if (d.toDateString() === today.toDateString()) return 'Today';
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  } catch {
+    return 'Today';
+  }
+}
+
+export default function EntryHistory({ entries: propEntries }) {
+  const entries = propEntries && propEntries.length > 0
+    ? propEntries.map(e => ({
+        ...e,
+        date: formatDate(e.timestamp || e.date),
+        displayTime: formatTimestamp(e.timestamp),
+      }))
+    : DEMO_ENTRIES;
+
   let currentDate = '';
 
   return (
     <div className="glass-card p-6">
-      <h3 className="text-sm font-medium text-helix-muted mb-4">Recent Entries</h3>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-medium text-helix-muted">Recent Entries</h3>
+        <span className="text-xs text-helix-accent">{entries.length} entries</span>
+      </div>
       <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
-        {entries.map(entry => {
+        {entries.map((entry, idx) => {
           const showDate = entry.date !== currentDate;
           if (showDate) currentDate = entry.date;
 
           return (
-            <React.Fragment key={entry.id}>
+            <React.Fragment key={entry.id || idx}>
               {showDate && (
                 <p className="text-xs text-helix-muted font-medium pt-2 first:pt-0">{entry.date}</p>
               )}
@@ -49,12 +79,18 @@ export default function EntryHistory({ entries = DEMO_ENTRIES }) {
                 <p className="text-sm text-helix-text leading-relaxed mb-3">{entry.text}</p>
                 <div className="flex items-center justify-between">
                   <EmotionBadge emotion={entry.emotion} confidence={entry.confidence} size="sm" />
-                  <span className="text-xs text-helix-muted">{entry.timestamp}</span>
+                  <span className="text-xs text-helix-muted">{entry.displayTime || entry.timestamp}</span>
                 </div>
               </div>
             </React.Fragment>
           );
         })}
+        {entries.length === 0 && (
+          <div className="text-center py-8 text-helix-muted">
+            <span className="text-2xl">📝</span>
+            <p className="text-sm mt-2">No journal entries yet. Write your first one!</p>
+          </div>
+        )}
       </div>
     </div>
   );

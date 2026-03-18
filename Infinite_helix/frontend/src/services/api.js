@@ -16,6 +16,16 @@ api.interceptors.response.use(
   }
 );
 
+function authHeader(token) {
+  return { headers: { Authorization: `Bearer ${token}` } };
+}
+
+export const authAPI = {
+  register: (token, profile) => api.post('/auth/register', profile, authHeader(token)),
+  syncProfile: (token) => api.post('/auth/sync', {}, authHeader(token)),
+  getProfile: (token) => api.get('/auth/profile', authHeader(token)),
+};
+
 export const emotionAPI = {
   analyze: (text) => api.post('/emotion/analyze', { text }),
 };

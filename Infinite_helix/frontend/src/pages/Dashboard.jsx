@@ -16,16 +16,16 @@ function getGreeting() {
 }
 
 export default function Dashboard() {
-  const { todayMetrics } = useWellness();
+  const { todayMetrics, trackerStatus } = useWellness();
   const { user } = useAuth();
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 animate-slide-up">
       <div className="bg-mesh rounded-2xl p-6 border border-helix-border/30">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h1 className="text-2xl font-display font-semibold text-helix-text">
-              {getGreeting()}, {user?.displayName?.split(' ')[0] || 'there'} ✨
+              {getGreeting()}, {user?.displayName?.split(' ')[0] || 'there'}
             </h1>
             <p className="text-sm text-helix-muted mt-1">
               Here's your wellness snapshot for today. You're on a {todayMetrics.streakDays}-day streak!
@@ -61,15 +61,17 @@ export default function Dashboard() {
       </div>
 
       <div className="glass-card p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-3">
-            <div className="w-2 h-2 rounded-full bg-helix-mint animate-pulse" />
-            <span className="text-xs text-helix-muted">AI Wellness Engine Active</span>
+            <div className={`w-2 h-2 rounded-full ${trackerStatus === 'connected' ? 'bg-helix-mint animate-pulse' : 'bg-helix-red'}`} />
+            <span className="text-xs text-helix-muted">
+              AI Wellness Engine {trackerStatus === 'connected' ? 'Active' : 'Connecting...'}
+            </span>
           </div>
           <div className="flex items-center gap-4 text-xs text-helix-muted">
-            <span>Keyboard: <span className="text-helix-text">Active</span></span>
+            <span>Keystrokes: <span className="text-helix-text">{todayMetrics.activity?.keystrokes || 0}</span></span>
             <span>Screen: <span className="text-helix-text">{todayMetrics.screenTime.total}h</span></span>
-            <span>Next nudge: <span className="text-helix-text">~12 min</span></span>
+            <span>Intensity: <span className="text-helix-text">{Math.round(todayMetrics.activity?.typing_intensity || 0)}/min</span></span>
           </div>
         </div>
       </div>

@@ -12,6 +12,9 @@ torch>=2.1.0
 psutil>=5.9.0
 pynput>=1.7.6
 
+# Desktop Notifications
+plyer>=2.1.0
+
 # Firebase
 firebase-admin>=6.2.0
 

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.ai.nudge_engine import NudgeEngine
 from app.notifications.notification_manager import notification_manager
+import app as app_module
 
 nudge_bp = Blueprint('nudge', __name__)
 nudge_engine = NudgeEngine()
@@ -9,6 +10,13 @@ nudge_engine = NudgeEngine()
 @nudge_bp.route('/generate', methods=['POST'])
 def generate_nudge():
     context = request.get_json() or {}
+
+    monitor = app_module.activity_monitor
+    if monitor:
+        stats = monitor.stats
+        context.setdefault('continuous_work_minutes', stats.get('continuous_work_minutes', 0))
+        context.setdefault('typing_intensity', stats.get('typing_intensity', 0))
+
     nudge = nudge_engine.generate(context)
 
     if nudge:

@@ -4,7 +4,8 @@ import EmotionBadge from './EmotionBadge';
 export default function AIResponse({ analysis }) {
   if (!analysis) return null;
 
-  const { emotion, confidence, sentiment, reframe, allEmotions } = analysis;
+  const { emotion, confidence, sentiment, reframe } = analysis;
+  const allEmotions = analysis.allEmotions || analysis.all_emotions;
 
   return (
     <div className="glass-card p-5 glow-pink animate-slide-up">
