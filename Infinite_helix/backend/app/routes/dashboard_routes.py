@@ -18,7 +18,10 @@ def get_today():
     monitor = app_module.activity_monitor
     activity = monitor.stats if monitor else {}
 
-    glasses = get_hydration_today(user_id)
+    try:
+        glasses = get_hydration_today(user_id)
+    except Exception:
+        glasses = 0
     continuous = activity.get('continuous_work_minutes', 0)
     typing = activity.get('typing_intensity', 0)
     session_min = activity.get('session_duration_minutes', 0)

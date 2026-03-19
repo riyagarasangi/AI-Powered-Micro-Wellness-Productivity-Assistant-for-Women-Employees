@@ -4,6 +4,11 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
+try:
+    from google.cloud.firestore_v1.base_query import FieldFilter
+except ImportError:
+    FieldFilter = None
+
 _BACKEND_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 _db = None
@@ -71,7 +76,12 @@ def save_journal_entry(user_id, entry):
     }
 
     if db:
-        db.collection('journal_entries').add(doc)
+        try:
+            db.collection('journal_entries').add(doc)
+        except Exception as e:
+            logger.warning('Firestore write failed for journal entry: %s', e)
+            doc['id'] = len(_in_memory_store['journal_entries']) + 1
+            _in_memory_store['journal_entries'].append(doc)
     else:
         doc['id'] = len(_in_memory_store['journal_entries']) + 1
         _in_memory_store['journal_entries'].append(doc)
@@ -82,12 +92,20 @@ def save_journal_entry(user_id, entry):
 def get_journal_entries(user_id, limit=20):
     db = get_db()
     if db:
-        docs = (db.collection('journal_entries')
-                .where('user_id', '==', user_id)
-                .order_by('timestamp', direction='DESCENDING')
-                .limit(limit)
-                .stream())
-        return [{'id': d.id, **d.to_dict()} for d in docs]
+        try:
+            query = db.collection('journal_entries')
+            if FieldFilter:
+                query = query.where(filter=FieldFilter('user_id', '==', user_id))
+            else:
+                query = query.where('user_id', '==', user_id)
+            docs = (query
+                    .order_by('timestamp', direction='DESCENDING')
+                    .limit(limit)
+                    .stream())
+            return [{'id': d.id, **d.to_dict()} for d in docs]
+        except Exception as e:
+            logger.warning('Firestore query failed for journal entries: %s', e)
+            return []
 
     return sorted(
         [e for e in _in_memory_store['journal_entries'] if e.get('user_id') == user_id],
@@ -104,7 +122,11 @@ def log_hydration(user_id):
     }
 
     if db:
-        db.collection('hydration_logs').add(doc)
+        try:
+            db.collection('hydration_logs').add(doc)
+        except Exception as e:
+            logger.warning('Firestore write failed for hydration log: %s', e)
+            _in_memory_store['hydration_logs'].append(doc)
     else:
         _in_memory_store['hydration_logs'].append(doc)
 
@@ -116,11 +138,21 @@ def get_hydration_today(user_id):
     db = get_db()
 
     if db:
-        docs = (db.collection('hydration_logs')
-                .where('user_id', '==', user_id)
-                .where('date', '==', today)
-                .stream())
-        return len(list(docs))
+        try:
+            query = db.collection('hydration_logs')
+            if FieldFilter:
+                query = (query
+                         .where(filter=FieldFilter('user_id', '==', user_id))
+                         .where(filter=FieldFilter('date', '==', today)))
+            else:
+                query = (query
+                         .where('user_id', '==', user_id)
+                         .where('date', '==', today))
+            docs = query.stream()
+            return len(list(docs))
+        except Exception as e:
+            logger.warning('Firestore query failed for hydration: %s', e)
+            return 0
 
     return len([e for e in _in_memory_store['hydration_logs']
                 if e.get('user_id') == user_id and e.get('date') == today])
@@ -137,7 +169,11 @@ def save_mood_log(user_id, mood_data):
     }
 
     if db:
-        db.collection('mood_logs').add(doc)
+        try:
+            db.collection('mood_logs').add(doc)
+        except Exception as e:
+            logger.warning('Firestore write failed for mood log: %s', e)
+            _in_memory_store['mood_logs'].append(doc)
     else:
         _in_memory_store['mood_logs'].append(doc)
 

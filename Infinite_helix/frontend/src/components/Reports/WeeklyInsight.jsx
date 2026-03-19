@@ -1,92 +1,128 @@
 import React from 'react';
-import { HiOutlineTrendingUp, HiOutlineTrendingDown, HiOutlineCheckCircle, HiOutlineLightBulb } from 'react-icons/hi';
+import {
+  HiOutlineStar,
+  HiOutlineTrendingUp,
+  HiOutlineCheckCircle,
+  HiOutlineLightBulb,
+  HiOutlineSparkles,
+} from 'react-icons/hi';
 
-const INSIGHTS = [
-  {
-    icon: HiOutlineTrendingUp,
-    title: 'Productivity Up 12%',
-    detail: 'Your focus sessions increased from 3.2 to 4.1 per day compared to last week.',
-    color: 'text-helix-mint',
-    bg: 'bg-helix-mint/10',
-  },
-  {
-    icon: HiOutlineTrendingDown,
-    title: 'Hydration Needs Attention',
-    detail: 'You averaged 4.2 glasses/day — below your 8 glass goal. Try setting morning reminders.',
-    color: 'text-helix-amber',
-    bg: 'bg-helix-amber/10',
-  },
-  {
-    icon: HiOutlineCheckCircle,
-    title: 'Great Break Balance',
-    detail: 'You took breaks every 72 min on average — close to the ideal 90 min cycle.',
-    color: 'text-helix-sky',
-    bg: 'bg-helix-sky/10',
-  },
-  {
-    icon: HiOutlineLightBulb,
-    title: 'Peak Focus: 9-11 AM',
-    detail: 'Your highest concentration scores consistently happen in morning hours. Schedule deep work then.',
-    color: 'text-helix-accent',
-    bg: 'bg-helix-accent/10',
-  },
-];
-
-const SUMMARY = {
-  avgScore: 74,
-  totalFocusHours: 28.5,
-  breaksPerDay: 4.8,
-  moodTrend: 'improving',
-  topEmotion: 'focused',
+const INSIGHT_STYLES = {
+  achievement: { icon: HiOutlineStar, color: 'text-helix-amber', bg: 'bg-helix-amber/10', border: 'border-helix-amber/20' },
+  improvement: { icon: HiOutlineTrendingUp, color: 'text-helix-sky', bg: 'bg-helix-sky/10', border: 'border-helix-sky/20' },
+  positive: { icon: HiOutlineCheckCircle, color: 'text-helix-mint', bg: 'bg-helix-mint/10', border: 'border-helix-mint/20' },
+  tip: { icon: HiOutlineLightBulb, color: 'text-helix-accent', bg: 'bg-helix-accent/10', border: 'border-helix-accent/20' },
 };
 
-export default function WeeklyInsight() {
+const PHASE_INFO = {
+  menstrual: { emoji: '\u{1F319}', label: 'Menstrual', color: 'text-helix-pink', bg: 'bg-helix-pink/15' },
+  follicular: { emoji: '\u{1F331}', label: 'Follicular', color: 'text-helix-mint', bg: 'bg-helix-mint/15' },
+  ovulatory: { emoji: '\u2728', label: 'Ovulatory', color: 'text-helix-amber', bg: 'bg-helix-amber/15' },
+  luteal: { emoji: '\u{1F33F}', label: 'Luteal', color: 'text-helix-accent', bg: 'bg-helix-accent/15' },
+};
+
+export default function WeeklyInsight({ insights, recommendations, affirmation, cycleInsights }) {
   return (
-    <div className="glass-card p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h3 className="text-sm font-medium text-helix-muted">Weekly Report Card</h3>
-          <p className="text-xs text-helix-muted/70 mt-0.5">Mar 10 — Mar 16, 2026</p>
-        </div>
-        <div className="glass-card px-3 py-1.5">
-          <span className="text-xs text-helix-muted">Avg Score: </span>
-          <span className="text-sm font-bold text-helix-mint">{SUMMARY.avgScore}%</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 mb-6">
-        <div className="bg-helix-bg/50 rounded-xl p-3 text-center">
-          <p className="text-2xl font-display font-bold text-helix-accent">{SUMMARY.totalFocusHours}h</p>
-          <p className="text-xs text-helix-muted">Focus Time</p>
-        </div>
-        <div className="bg-helix-bg/50 rounded-xl p-3 text-center">
-          <p className="text-2xl font-display font-bold text-helix-sky">{SUMMARY.breaksPerDay}</p>
-          <p className="text-xs text-helix-muted">Breaks/Day</p>
-        </div>
-        <div className="bg-helix-bg/50 rounded-xl p-3 text-center">
-          <p className="text-2xl font-display font-bold text-helix-mint capitalize">{SUMMARY.moodTrend}</p>
-          <p className="text-xs text-helix-muted">Mood Trend</p>
-        </div>
-        <div className="bg-helix-bg/50 rounded-xl p-3 text-center">
-          <p className="text-2xl font-display font-bold text-helix-pink capitalize">{SUMMARY.topEmotion}</p>
-          <p className="text-xs text-helix-muted">Top Emotion</p>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <p className="text-xs text-helix-muted font-medium uppercase tracking-wider">Insights & Suggestions</p>
-        {INSIGHTS.map((insight, i) => (
-          <div key={i} className={`${insight.bg} rounded-xl p-4 border border-helix-border/20`}>
-            <div className="flex items-start gap-3">
-              <insight.icon className={`w-5 h-5 mt-0.5 ${insight.color}`} />
-              <div>
-                <p className="text-sm font-medium text-helix-text">{insight.title}</p>
-                <p className="text-xs text-helix-muted mt-1 leading-relaxed">{insight.detail}</p>
-              </div>
-            </div>
+    <div className="space-y-6">
+      {/* Cycle Insights */}
+      {cycleInsights?.enabled && (
+        <div className="glass-card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <HiOutlineSparkles className="w-4 h-4 text-helix-pink" />
+            <h3 className="text-sm font-medium text-helix-muted">Cycle-Aware Insights</h3>
+            <span className="text-xs px-2 py-0.5 rounded-full bg-helix-pink/15 text-helix-pink font-medium">
+              {PHASE_INFO[cycleInsights.current_phase]?.emoji} {PHASE_INFO[cycleInsights.current_phase]?.label} Phase
+            </span>
           </div>
-        ))}
-      </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            {Object.entries(cycleInsights.phase_scores || {}).map(([phase, score]) => {
+              const info = PHASE_INFO[phase] || {};
+              const isCurrent = phase === cycleInsights.current_phase;
+              return (
+                <div
+                  key={phase}
+                  className={`rounded-xl p-3 text-center border transition-all ${isCurrent ? `${info.bg} border-current/20 ring-1 ring-current/10` : 'bg-helix-bg/40 border-helix-border/10'}`}
+                >
+                  <span className="text-lg">{info.emoji}</span>
+                  <p className={`text-lg font-display font-bold mt-1 ${isCurrent ? info.color : 'text-helix-text'}`}>
+                    {score}
+                  </p>
+                  <p className="text-[10px] text-helix-muted capitalize">{info.label}</p>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="bg-helix-bg/40 rounded-xl p-4 border border-helix-border/10">
+            <p className="text-sm text-helix-text/90 leading-relaxed">{cycleInsights.tip}</p>
+          </div>
+        </div>
+      )}
+
+      {/* AI Insights */}
+      {insights && insights.length > 0 && (
+        <div className="glass-card p-6">
+          <h3 className="text-sm font-medium text-helix-muted mb-4">AI-Powered Insights</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {insights.map((insight, i) => {
+              const style = INSIGHT_STYLES[insight.type] || INSIGHT_STYLES.tip;
+              const Icon = style.icon;
+              return (
+                <div key={i} className={`${style.bg} rounded-xl p-4 border ${style.border}`}>
+                  <div className="flex items-start gap-3">
+                    <div className={`p-1.5 rounded-lg ${style.bg}`}>
+                      <Icon className={`w-4.5 h-4.5 ${style.color}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-helix-text">{insight.title}</p>
+                      <p className="text-xs text-helix-muted mt-1 leading-relaxed">{insight.detail}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Recommendations */}
+      {recommendations && recommendations.length > 0 && (
+        <div className="glass-card p-6">
+          <h3 className="text-sm font-medium text-helix-muted mb-4">Personalized Recommendations</h3>
+          <div className="space-y-3">
+            {recommendations.map((rec, i) => (
+              <div key={i} className="flex gap-3 bg-helix-bg/40 rounded-xl p-4 border border-helix-border/10">
+                <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-gradient-to-br from-helix-accent/20 to-helix-pink/20 flex items-center justify-center">
+                  <span className="text-xs font-bold text-helix-accent">{i + 1}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold text-helix-accent uppercase tracking-wider mb-0.5">
+                    {rec.category}
+                  </p>
+                  <p className="text-sm text-helix-text/90 leading-relaxed">{rec.tip}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Affirmation */}
+      {affirmation && (
+        <div className="relative overflow-hidden rounded-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-helix-accent/10 via-helix-pink/10 to-helix-sky/10" />
+          <div className="absolute inset-0 bg-mesh opacity-50" />
+          <div className="relative p-8 text-center">
+            <p className="text-xs font-semibold text-helix-accent uppercase tracking-widest mb-3">
+              Your Weekly Affirmation
+            </p>
+            <p className="text-base text-helix-text/90 leading-relaxed italic font-body max-w-2xl mx-auto">
+              &ldquo;{affirmation}&rdquo;
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
