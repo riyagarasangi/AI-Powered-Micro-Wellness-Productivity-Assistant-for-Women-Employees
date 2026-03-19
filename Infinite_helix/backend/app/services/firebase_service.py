@@ -1,11 +1,17 @@
 import os
+import logging
 from datetime import datetime
+
+logger = logging.getLogger(__name__)
+
+_BACKEND_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 _db = None
 _initialized = False
 
 
-def _init_firebase():
+def init_firebase():
+    """Initialize Firebase Admin SDK. Safe to call multiple times."""
     global _db, _initialized
     if _initialized:
         return _db
@@ -15,13 +21,26 @@ def _init_firebase():
         from firebase_admin import credentials, firestore
 
         cred_path = os.getenv('FIREBASE_CREDENTIALS_PATH', './config/firebase-credentials.json')
+        if not os.path.isabs(cred_path):
+            cred_path = os.path.join(_BACKEND_ROOT, cred_path)
+        cred_path = os.path.normpath(cred_path)
+
         if os.path.exists(cred_path):
             cred = credentials.Certificate(cred_path)
             firebase_admin.initialize_app(cred)
             _db = firestore.client()
+            logger.info('Firebase Admin SDK initialized successfully')
         else:
+            logger.warning(
+                'Firebase credentials not found at %s. '
+                'Running with in-memory storage (data will not persist).', cred_path
+            )
             _db = None
-    except Exception:
+    except Exception as e:
+        logger.warning(
+            'Firebase initialization failed: %s. '
+            'Running with in-memory storage (data will not persist).', e
+        )
         _db = None
 
     _initialized = True
@@ -29,7 +48,7 @@ def _init_firebase():
 
 
 def get_db():
-    return _init_firebase()
+    return init_firebase()
 
 
 _in_memory_store = {

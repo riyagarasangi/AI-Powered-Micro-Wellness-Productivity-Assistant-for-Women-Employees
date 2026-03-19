@@ -10,6 +10,8 @@ _users_store = {}
 def _verify_firebase_token(id_token):
     """Verify Firebase ID token. Returns decoded claims or None."""
     try:
+        from app.services.firebase_service import init_firebase
+        init_firebase()
         import firebase_admin.auth as fb_auth
         return fb_auth.verify_id_token(id_token)
     except Exception:

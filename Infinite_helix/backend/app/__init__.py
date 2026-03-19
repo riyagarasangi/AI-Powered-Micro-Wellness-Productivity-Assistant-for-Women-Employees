@@ -47,6 +47,9 @@ def create_app():
             'demo_mode': app.config.get('DEMO_MODE', True),
         }
 
+    from app.services.firebase_service import init_firebase
+    init_firebase()
+
     _init_ai_models(app)
     return app
 
