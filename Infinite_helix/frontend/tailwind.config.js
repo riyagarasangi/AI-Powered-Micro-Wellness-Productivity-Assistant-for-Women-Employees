@@ -23,8 +23,9 @@ module.exports = {
         }
       },
       fontFamily: {
-        display: ['Playfair Display', 'serif'],
-        body: ['DM Sans', 'sans-serif'],
+        display: ['Roboto', 'sans-serif'],
+        body: ['Roboto', 'sans-serif'],
+        sans: ['Roboto', 'sans-serif'],
       },
       animation: {
         'float': 'float 3s ease-in-out infinite',

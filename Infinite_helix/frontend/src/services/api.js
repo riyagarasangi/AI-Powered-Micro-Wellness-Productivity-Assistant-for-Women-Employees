@@ -61,7 +61,10 @@ export const nudgeAPI = {
 
 export const calendarAPI = {
   getMeetings: () => api.get('/calendar/meetings'),
+  getNext: () => api.get('/calendar/next'),
+  getStatus: () => api.get('/calendar/status'),
   authorize: () => api.get('/calendar/authorize'),
+  disconnect: () => api.post('/calendar/disconnect'),
 };
 
 export const cycleAPI = {
@@ -70,7 +73,7 @@ export const cycleAPI = {
 };
 
 export const hydrationAPI = {
-  log: () => api.post('/hydration/log'),
+  log: (amount_ml = 250) => api.post('/hydration/log', { amount_ml }),
   getToday: () => api.get('/hydration/today'),
 };
 

@@ -190,7 +190,7 @@ function generatePrintHTML(report, userName) {
      </div>`;
 
   const selfCareRows = [
-    { label: 'Hydration', val: `${selfCare.hydration.avg_glasses}/${selfCare.hydration.goal} glasses`, pct: selfCare.hydration.completion_pct, color: '#38bdf8' },
+    { label: 'Hydration', val: `${selfCare.hydration.avg_ml}/${selfCare.hydration.goal_ml} ml`, pct: selfCare.hydration.completion_pct, color: '#38bdf8' },
     { label: 'Breaks', val: `${selfCare.breaks.total} taken`, pct: selfCare.breaks.compliance_pct, color: '#34d399' },
     { label: 'Stretches', val: `${selfCare.stretches.done}/${selfCare.stretches.suggested}`, pct: selfCare.stretches.compliance_pct, color: '#a78bfa' },
     { label: 'Eye Rest', val: `${selfCare.eye_rest.done}/${selfCare.eye_rest.suggested}`, pct: selfCare.eye_rest.compliance_pct, color: '#f472b6' },
@@ -360,7 +360,7 @@ function generatePrintHTML(report, userName) {
   <div class="metrics">
     <div class="metric"><div class="val">${s.total_focus_hours}h</div><div class="lbl">Focus Time</div></div>
     <div class="metric"><div class="val">${s.breaks_per_day}</div><div class="lbl">Breaks / Day</div></div>
-    <div class="metric"><div class="val">${s.hydration_avg}/${s.hydration_goal}</div><div class="lbl">Hydration Avg</div></div>
+    <div class="metric"><div class="val">${s.hydration_avg_ml}/${s.hydration_goal_ml} ml</div><div class="lbl">Hydration Avg</div></div>
     <div class="metric"><div class="val" style="text-transform:capitalize">${s.mood_trend}</div><div class="lbl">Mood Trend</div></div>
   </div>
 

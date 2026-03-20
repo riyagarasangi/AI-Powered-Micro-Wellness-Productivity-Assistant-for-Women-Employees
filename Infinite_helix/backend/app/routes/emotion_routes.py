@@ -12,32 +12,36 @@ def analyze_emotion():
         return jsonify({'error': 'Text is required'}), 400
 
     detector = current_app.emotion_detector
+    analyzer = current_app.sentiment_analyzer
 
     if detector is None:
-        # Demo fallback when AI models aren't loaded
         return jsonify({
             'emotion': 'neutral',
-            'confidence': 0.85,
+            'confidence': 0.65,
             'all_emotions': [
-                {'label': 'neutral', 'score': 0.85},
-                {'label': 'joy', 'score': 0.08},
-                {'label': 'sadness', 'score': 0.04},
-                {'label': 'anger', 'score': 0.03},
+                {'label': 'neutral', 'score': 0.65},
+                {'label': 'joy', 'score': 0.18},
+                {'label': 'surprise', 'score': 0.10},
+                {'label': 'sadness', 'score': 0.07},
             ],
             'sentiment': 'neutral',
+            'all_sentiments': [],
             'reframe': None,
         })
 
     try:
         emotion_result = detector.analyze(text)
 
-        sentiment_result = {'sentiment': 'neutral', 'reframe': None}
-        if current_app.sentiment_analyzer:
-            sentiment_result = current_app.sentiment_analyzer.analyze(text)
+        sentiment_result = {'sentiment': 'neutral', 'confidence': 0, 'all_sentiments': [], 'reframe': None}
+        if analyzer:
+            sentiment_result = analyzer.analyze(text)
 
         return jsonify({
-            **emotion_result,
+            'emotion': emotion_result.get('emotion', 'neutral'),
+            'confidence': emotion_result.get('confidence', 0),
+            'all_emotions': emotion_result.get('all_emotions', []),
             'sentiment': sentiment_result.get('sentiment', 'neutral'),
+            'all_sentiments': sentiment_result.get('all_sentiments', []),
             'reframe': sentiment_result.get('reframe'),
         })
     except Exception as e:

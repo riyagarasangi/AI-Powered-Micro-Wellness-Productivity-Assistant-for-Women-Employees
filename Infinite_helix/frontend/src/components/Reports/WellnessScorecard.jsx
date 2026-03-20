@@ -44,8 +44,8 @@ export default function WellnessScorecard({ score, summary, dailyScores }) {
     },
     {
       label: 'Hydration',
-      value: `${summary.hydration_avg}`,
-      sub: `of ${summary.hydration_goal} glasses goal`,
+      value: `${summary.hydration_avg_ml} ml`,
+      sub: `of ${summary.hydration_goal_ml} ml goal`,
       icon: HiOutlineHeart,
       color: 'text-helix-sky',
       bg: 'bg-helix-sky/10',

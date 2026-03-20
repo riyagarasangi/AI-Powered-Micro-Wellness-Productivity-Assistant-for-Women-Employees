@@ -69,7 +69,7 @@ def register():
         'settings': {
             'notifications': True,
             'cycle_mode': False,
-            'hydration_goal': 8,
+            'hydration_goal_ml': 2000,
             'break_interval_minutes': 45,
         },
     }
@@ -128,7 +128,7 @@ def sync_profile():
             'settings': {
                 'notifications': True,
                 'cycle_mode': False,
-                'hydration_goal': 8,
+                'hydration_goal_ml': 2000,
                 'break_interval_minutes': 45,
             },
         }

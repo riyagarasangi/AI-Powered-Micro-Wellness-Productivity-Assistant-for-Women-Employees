@@ -9,9 +9,9 @@ const METRICS_CONFIG = [
     color: 'from-helix-sky to-blue-400',
     textColor: 'text-helix-sky',
     format: (d) => ({
-      value: `${d.avg_glasses} / ${d.goal}`,
-      unit: 'glasses avg',
-      detail: `Best day: ${d.best_day} \u00b7 ${d.total_glasses} total`,
+      value: `${d.avg_ml} / ${d.goal_ml}`,
+      unit: 'ml avg',
+      detail: `Best day: ${d.best_day} \u00b7 ${d.total_ml} ml total`,
       pct: d.completion_pct,
     }),
   },

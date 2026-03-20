@@ -8,7 +8,7 @@ const INITIAL_METRICS = {
   screenTime: { total: 0, goal: 8, breakdown: { coding: 0, meetings: 0, browsing: 0, email: 0 } },
   focusSessions: [],
   breaks: { taken: 0, suggested: 6, lastBreak: '--:--', avgDuration: 0 },
-  hydration: { glasses: 0, goal: 8, history: [false, false, false, false, false, false, false, false] },
+  hydration: { ml_today: 0, goal_ml: 2000, default_amount_ml: 250 },
   score: 0,
   mood: 'neutral',
   streakDays: 0,
@@ -26,15 +26,14 @@ export function WellnessProvider({ children }) {
     try {
       const res = await dashboardAPI.getToday();
       const d = res.data;
-      const glasses = d.hydration?.glasses || 0;
       setTodayMetrics({
         screenTime: d.screenTime || INITIAL_METRICS.screenTime,
         focusSessions: d.focusSessions || [],
         breaks: d.breaks || INITIAL_METRICS.breaks,
         hydration: {
-          glasses,
-          goal: d.hydration?.goal || 8,
-          history: Array.from({ length: 8 }, (_, i) => i < glasses),
+          ml_today: d.hydration?.ml_today || 0,
+          goal_ml: d.hydration?.goal_ml || 2000,
+          default_amount_ml: d.hydration?.default_amount_ml || 250,
         },
         score: d.score || 0,
         mood: d.mood || 'neutral',
@@ -51,23 +50,20 @@ export function WellnessProvider({ children }) {
     fetchDashboard();
   }, [fetchDashboard]);
 
-  const addHydration = useCallback(async () => {
+  const addHydration = useCallback(async (amount_ml) => {
+    const ml = amount_ml || 250;
     try {
-      await hydrationAPI.log();
+      await hydrationAPI.log(ml);
     } catch {
       // offline fallback
     }
-    setTodayMetrics(prev => {
-      const newGlasses = Math.min(prev.hydration.glasses + 1, prev.hydration.goal);
-      return {
-        ...prev,
-        hydration: {
-          ...prev.hydration,
-          glasses: newGlasses,
-          history: Array.from({ length: 8 }, (_, i) => i < newGlasses),
-        },
-      };
-    });
+    setTodayMetrics(prev => ({
+      ...prev,
+      hydration: {
+        ...prev.hydration,
+        ml_today: prev.hydration.ml_today + ml,
+      },
+    }));
   }, []);
 
   const dismissNudge = useCallback(async (id) => {
@@ -114,7 +110,7 @@ export function WellnessProvider({ children }) {
       generateNudge({
         continuous_work_minutes: activity.continuous_work_minutes || 0,
         typing_intensity: activity.typing_intensity || 0,
-        glasses_today: todayMetrics.hydration?.glasses || 0,
+        ml_today: todayMetrics.hydration?.ml_today || 0,
         hour_of_day: new Date().getHours(),
       });
     }, 120000);

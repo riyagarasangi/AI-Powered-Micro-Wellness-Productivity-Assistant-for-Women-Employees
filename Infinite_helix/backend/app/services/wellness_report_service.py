@@ -27,8 +27,8 @@ class WellnessReportService:
                 'total_breaks': 24,
                 'breaks_per_day': 4.8,
                 'avg_break_interval_min': 72,
-                'hydration_avg': 5.2,
-                'hydration_goal': 8,
+                'hydration_avg_ml': 1300,
+                'hydration_goal_ml': 2000,
                 'mood_trend': 'improving',
                 'top_emotion': 'joy',
                 'journal_entries': 5,
@@ -67,11 +67,11 @@ class WellnessReportService:
             },
             'self_care': {
                 'hydration': {
-                    'avg_glasses': 5.2,
-                    'goal': 8,
+                    'avg_ml': 1300,
+                    'goal_ml': 2000,
                     'completion_pct': 65,
                     'best_day': 'Thursday',
-                    'total_glasses': 26,
+                    'total_ml': 6500,
                 },
                 'breaks': {
                     'total': 24,
@@ -110,7 +110,7 @@ class WellnessReportService:
                 {
                     'type': 'improvement',
                     'title': 'Hydration Needs Love',
-                    'detail': 'You averaged 5.2 glasses/day vs your 8-glass goal (65%). Try keeping a water bottle at your desk \u2014 your best day was Thursday when you hit 7 glasses.',
+                    'detail': 'You averaged 1300 ml/day vs your 2000 ml goal (65%). Try keeping a water bottle at your desk \u2014 your best day was Thursday when you hit 1750 ml.',
                 },
                 {
                     'type': 'positive',

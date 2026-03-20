@@ -52,7 +52,7 @@ class NudgeEngine:
             minutes_since_break: minutes since last break
             meeting_in_minutes: minutes until next meeting (None if no meeting)
             recent_emotion: latest detected emotion
-            glasses_today: water glasses logged
+            ml_today: water intake logged in milliliters
             hour_of_day: current hour (0-23)
         """
         nudge_type = self._evaluate_context(context)
@@ -93,10 +93,10 @@ class NudgeEngine:
         if since_break >= 90:
             return 'stretch'
 
-        glasses = ctx.get('glasses_today', 0)
+        ml_today = ctx.get('ml_today', 0)
         hour = ctx.get('hour_of_day', 12)
-        expected = max(1, int(hour / 2))
-        if glasses < expected and continuous >= 60:
+        expected_ml = max(250, int(hour / 2 * 250))
+        if ml_today < expected_ml and continuous >= 60:
             return 'hydration'
 
         return None

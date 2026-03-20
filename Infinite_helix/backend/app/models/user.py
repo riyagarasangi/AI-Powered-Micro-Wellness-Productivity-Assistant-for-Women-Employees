@@ -10,7 +10,7 @@ Fields:
     settings        dict    User preferences
         notifications       bool    Enable notifications
         nudge_frequency     str     'minimal' | 'balanced' | 'frequent'
-        hydration_goal      int     Daily glass target
+        hydration_goal_ml   int     Daily water intake goal in milliliters (default 2000ml)
         cycle_mode_enabled  bool    Enable cycle energy mode
         cycle_phase         str     Current phase or None
     created_at      str     ISO timestamp
@@ -26,7 +26,7 @@ def default_user(uid, display_name, email):
         'settings': {
             'notifications': True,
             'nudge_frequency': 'balanced',
-            'hydration_goal': 8,
+            'hydration_goal_ml': 2000,
             'cycle_mode_enabled': False,
             'cycle_phase': None,
         },

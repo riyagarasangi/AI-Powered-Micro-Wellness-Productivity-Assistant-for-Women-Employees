@@ -13,8 +13,8 @@ def create_entry():
     if not text.strip():
         return jsonify({'error': 'Text is required'}), 400
 
-    emotion_data = {}
-    sentiment_data = {}
+    emotion_data = {'emotion': 'neutral', 'confidence': 0, 'all_emotions': []}
+    sentiment_data = {'sentiment': 'neutral', 'confidence': 0, 'all_sentiments': [], 'reframe': None}
 
     detector = current_app.emotion_detector
     analyzer = current_app.sentiment_analyzer
@@ -23,18 +23,22 @@ def create_entry():
         emotion_data = detector.analyze(text)
     if analyzer:
         sentiment_data = analyzer.analyze(text)
-        emotion_data['sentiment'] = sentiment_data.get('sentiment', 'neutral')
-        emotion_data['reframe'] = sentiment_data.get('reframe')
-        emotion_data['all_sentiments'] = sentiment_data.get('all_sentiments', [])
+
+    combined = {
+        'emotion': emotion_data.get('emotion', 'neutral'),
+        'confidence': emotion_data.get('confidence', 0),
+        'all_emotions': emotion_data.get('all_emotions', []),
+        'sentiment': sentiment_data.get('sentiment', 'neutral'),
+        'reframe': sentiment_data.get('reframe'),
+        'all_sentiments': sentiment_data.get('all_sentiments', []),
+    }
 
     entry = save_journal_entry(user_id, {
         'text': text,
-        'emotion': emotion_data.get('emotion', 'neutral'),
-        'confidence': emotion_data.get('confidence', 0),
-        'sentiment': emotion_data.get('sentiment', 'neutral'),
+        **combined,
     })
 
-    return jsonify({**entry, **emotion_data}), 201
+    return jsonify({**entry, **combined}), 201
 
 
 @journal_bp.route('', methods=['GET'])

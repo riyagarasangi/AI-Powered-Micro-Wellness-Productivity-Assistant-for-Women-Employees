@@ -18,6 +18,11 @@ class Config:
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
     GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:5000/api/calendar/callback')
 
+    MS_CLIENT_ID = os.getenv('MS_CLIENT_ID', '')
+    MS_CLIENT_SECRET = os.getenv('MS_CLIENT_SECRET', '')
+    MS_TENANT_ID = os.getenv('MS_TENANT_ID', 'common')
+    MS_REDIRECT_URI = os.getenv('MS_REDIRECT_URI', 'http://localhost:5000/api/calendar/callback')
+
     EMOTION_MODEL = os.getenv('EMOTION_MODEL', 'j-hartmann/emotion-english-distilroberta-base')
     SENTIMENT_MODEL = os.getenv('SENTIMENT_MODEL', 'cardiffnlp/twitter-roberta-base-sentiment')
     MODEL_CACHE_DIR = os.getenv('MODEL_CACHE_DIR', './model_cache')

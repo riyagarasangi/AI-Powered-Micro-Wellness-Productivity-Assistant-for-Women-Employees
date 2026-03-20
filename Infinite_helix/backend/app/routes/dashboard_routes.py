@@ -19,16 +19,17 @@ def get_today():
     activity = monitor.stats if monitor else {}
 
     try:
-        glasses = get_hydration_today(user_id)
+        hydration_data = get_hydration_today(user_id)
+        ml_today = hydration_data['ml_today']
     except Exception:
-        glasses = 0
+        ml_today = 0
     continuous = activity.get('continuous_work_minutes', 0)
     typing = activity.get('typing_intensity', 0)
     session_min = activity.get('session_duration_minutes', 0)
 
     focus_score = min(100, int(50 + typing * 0.3 + min(continuous, 90) * 0.2))
     breaks_taken = max(1, int(session_min / 60)) if session_min > 30 else 0
-    score = _calculate_wellness_score(focus_score, breaks_taken, glasses, continuous)
+    score = _calculate_wellness_score(focus_score, breaks_taken, ml_today, continuous)
 
     elapsed_hours = round((time.time() - SESSION_START) / 3600, 2)
     breakdown = screen_data.get('breakdown', {})
@@ -59,8 +60,9 @@ def get_today():
             'avgDuration': 8,
         },
         'hydration': {
-            'glasses': glasses,
-            'goal': 8,
+            'ml_today': ml_today,
+            'goal_ml': 2000,
+            'default_amount_ml': 250,
         },
         'score': score,
         'mood': 'focused' if typing > 30 else 'relaxed',
@@ -75,10 +77,10 @@ def get_today():
     })
 
 
-def _calculate_wellness_score(focus, breaks, glasses, continuous):
+def _calculate_wellness_score(focus, breaks, ml_today, continuous):
     focus_norm = min(focus, 100) * 0.25
     break_norm = min(breaks / 6, 1.0) * 100 * 0.20
-    hydration_norm = min(glasses / 8, 1.0) * 100 * 0.20
+    hydration_norm = min(ml_today / 2000, 1.0) * 100 * 0.20
     overwork_penalty = max(0, continuous - 120) * 0.15
     base = focus_norm + break_norm + hydration_norm + 35 - overwork_penalty
     return max(10, min(100, int(base)))

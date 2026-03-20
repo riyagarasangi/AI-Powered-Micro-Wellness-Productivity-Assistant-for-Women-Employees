@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer base {
+  html, body, * {
+    font-family: 'Roboto', sans-serif;
+  }
   * {
     scrollbar-width: thin;
     scrollbar-color: #2e2e3c #0f0f12;

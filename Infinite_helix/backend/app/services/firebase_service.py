@@ -72,6 +72,9 @@ def save_journal_entry(user_id, entry):
         'emotion': entry.get('emotion', 'neutral'),
         'confidence': entry.get('confidence', 0),
         'sentiment': entry.get('sentiment', 'neutral'),
+        'reframe': entry.get('reframe'),
+        'all_emotions': entry.get('all_emotions', []),
+        'all_sentiments': entry.get('all_sentiments', []),
         'timestamp': datetime.utcnow().isoformat(),
     }
 
@@ -113,10 +116,18 @@ def get_journal_entries(user_id, limit=20):
     )[:limit]
 
 
-def log_hydration(user_id):
+DEFAULT_AMOUNT_ML = 250
+
+
+def log_hydration(user_id, amount_ml=None):
+    if amount_ml is None:
+        amount_ml = DEFAULT_AMOUNT_ML
+    amount_ml = max(1, int(amount_ml))
+
     db = get_db()
     doc = {
         'user_id': user_id,
+        'amount_ml': amount_ml,
         'timestamp': datetime.utcnow().isoformat(),
         'date': datetime.utcnow().strftime('%Y-%m-%d'),
     }
@@ -148,14 +159,17 @@ def get_hydration_today(user_id):
                 query = (query
                          .where('user_id', '==', user_id)
                          .where('date', '==', today))
-            docs = query.stream()
-            return len(list(docs))
+            docs = list(query.stream())
+            total_ml = sum(d.to_dict().get('amount_ml', DEFAULT_AMOUNT_ML) for d in docs)
+            return {'ml_today': total_ml, 'entries': len(docs)}
         except Exception as e:
             logger.warning('Firestore query failed for hydration: %s', e)
-            return 0
+            return {'ml_today': 0, 'entries': 0}
 
-    return len([e for e in _in_memory_store['hydration_logs']
-                if e.get('user_id') == user_id and e.get('date') == today])
+    today_logs = [e for e in _in_memory_store['hydration_logs']
+                  if e.get('user_id') == user_id and e.get('date') == today]
+    total_ml = sum(e.get('amount_ml', DEFAULT_AMOUNT_ML) for e in today_logs)
+    return {'ml_today': total_ml, 'entries': len(today_logs)}
 
 
 def save_mood_log(user_id, mood_data):
@@ -165,6 +179,7 @@ def save_mood_log(user_id, mood_data):
         'emotion': mood_data.get('emotion'),
         'sentiment': mood_data.get('sentiment'),
         'confidence': mood_data.get('confidence'),
+        'source': mood_data.get('source', 'auto-detect'),
         'timestamp': datetime.utcnow().isoformat(),
     }
 

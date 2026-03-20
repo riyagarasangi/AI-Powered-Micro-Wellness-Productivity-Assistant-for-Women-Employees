@@ -16,11 +16,11 @@ def analyze_sentiment():
     if analyzer is None:
         return jsonify({
             'sentiment': 'neutral',
-            'confidence': 0.80,
+            'confidence': 0.62,
             'all_sentiments': [
-                {'label': 'neutral', 'score': 0.80},
-                {'label': 'positive', 'score': 0.12},
-                {'label': 'negative', 'score': 0.08},
+                {'label': 'neutral', 'score': 0.62},
+                {'label': 'positive', 'score': 0.24},
+                {'label': 'negative', 'score': 0.14},
             ],
             'reframe': None,
         })

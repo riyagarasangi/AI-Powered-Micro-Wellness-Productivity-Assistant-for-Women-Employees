@@ -46,7 +46,7 @@ export default function Settings() {
     desktopNotifs: true,
     soundEnabled: false,
     nudgeFrequency: 'balanced',
-    hydrationGoal: 8,
+    hydrationGoalMl: 2000,
     cycleModeEnabled: true,
     dataSharing: false,
     darkMode: true,
@@ -114,12 +114,12 @@ export default function Settings() {
       </SettingsSection>
 
       <SettingsSection icon={HiOutlineColorSwatch} title="Wellness Goals">
-        <SettingRow label="Daily Hydration Goal" description="Number of glasses per day">
+        <SettingRow label="Daily Hydration Goal" description="Minimum daily water intake in milliliters (ml)">
           <div className="flex items-center gap-2">
-            <button onClick={() => update('hydrationGoal', Math.max(4, settings.hydrationGoal - 1))}
+            <button onClick={() => update('hydrationGoalMl', Math.max(500, settings.hydrationGoalMl - 250))}
                     className="w-7 h-7 rounded-lg bg-helix-bg text-helix-muted hover:text-helix-text transition-colors flex items-center justify-center">−</button>
-            <span className="text-sm font-medium text-helix-text w-6 text-center">{settings.hydrationGoal}</span>
-            <button onClick={() => update('hydrationGoal', Math.min(16, settings.hydrationGoal + 1))}
+            <span className="text-sm font-medium text-helix-text w-16 text-center">{settings.hydrationGoalMl} ml</span>
+            <button onClick={() => update('hydrationGoalMl', Math.min(5000, settings.hydrationGoalMl + 250))}
                     className="w-7 h-7 rounded-lg bg-helix-bg text-helix-muted hover:text-helix-text transition-colors flex items-center justify-center">+</button>
           </div>
         </SettingRow>
